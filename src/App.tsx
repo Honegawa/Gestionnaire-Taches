@@ -2,7 +2,6 @@ import {Routes, Route} from 'react-router-dom'
 import Template from './components/Template/Template.jsx'
 
 function App() {
-
   return (
     <Routes>
       <Route path="/" element={<Template/>}> 
@@ -14,4 +13,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
