@@ -8,10 +8,6 @@
     padding: 65px 0 30px;
     gap: 30px;
 
-    svg * {
-        fill: white;
-    }
-
     p {
         color: white;
         font-size: 24px;
