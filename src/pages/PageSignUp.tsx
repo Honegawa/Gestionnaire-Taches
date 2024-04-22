@@ -34,10 +34,10 @@ function PageSignUp() {
 
             <form onSubmit={handleSubmit}>
                 <label htmlFor="email">Nom :</label>
-                <input type="text" onChange={handleChange} />
+                <input name="email" type="text" onChange={handleChange} />
 
                 <label htmlFor="password">Mot de passe :</label>
-                <input type="password" onChange={handleChange} />
+                <input name="password" type="password" onChange={handleChange} />
 
                 <button>S'Inscrire</button>
             </form>
