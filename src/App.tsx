@@ -1,11 +1,16 @@
-import './App.css'
+import {Routes, Route} from 'react-router-dom'
+import Template from './components/Template/Template.jsx'
 
 function App() {
 
   return (
-    <>
-      <h1>App</h1>
-    </>
+    <Routes>
+      <Route path="/" element={<Template/>}> 
+        {/* <Route path='/home' element={<PageHome />} />
+        <Route path='/sign-up' element={<PageSignUp />} />
+        <Route path='/dashboard' element={<PageDashboard />} /> */}
+      </Route>
+  </Routes>
   )
 }
 
