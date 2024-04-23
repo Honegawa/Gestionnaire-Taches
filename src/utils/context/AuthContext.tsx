@@ -1,13 +1,11 @@
 import { createContext, useState, useEffect } from 'react';
 import { URL } from '../constants/url.ts';
 import axios from 'axios';
-import { User } from './../../interfaces/user.ts';
+import { User, UserContext } from './../../interfaces/user.ts';
 
-export const AuthContext = createContext();
-// export const TodoContext = React.createContext<TodoContextType | null>(null);
+export const AuthContext = createContext<UserContext|null>(null);
 
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children } ) =>
-// const TodoProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
 { 
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState(null);
@@ -29,7 +27,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
                 console.log(data);
                 setLoading(false);
                 return true;
-            }
+            } else
+                return false;
 
         } catch (error) {
             console.log(error);
@@ -51,7 +50,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
 
     return (
         <>
-            <AuthContext.Provider value={ { login, disconnect, user, loading, setLoading } }>
+            <AuthContext.Provider value={ { login, disconnect, user, loading } }>
                 {children}
             </AuthContext.Provider>
         </>
