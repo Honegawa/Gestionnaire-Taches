@@ -1,6 +1,6 @@
-export const PRIORITY = {
-  URGENT: 0,
-  IMPORTANT: 1,
-  DELEGABLE: 2,
-  OPTIONAL: 3,
-};
+export enum PRIORITY {
+  URGENT = 1,
+  IMPORTANT,
+  DELEGABLE,
+  OPTIONAL,
+}

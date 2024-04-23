@@ -28,6 +28,27 @@ function TaskList() {
     setCanCreate(false);
   };
 
+  const handleClickDelete = async (id: number) => {
+    if (user) {
+      // dispatch delete start
+      try {
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${user.token}`,
+        };
+
+        const response = await axios.delete(`${URL.TASKS}/${id}`, {
+          headers: headers,
+        });
+        console.log(response);
+        // dispatch delete success si status 204
+      } catch (error) {
+        // dispatch delete failure
+        console.error(error);
+      }
+    }
+  };
+
   const getTasks = async () => {
     // dispatch start
     if (user) {
@@ -54,16 +75,16 @@ function TaskList() {
     let res = "";
 
     switch (num) {
-      case 0:
+      case 1:
         res = "Urgent";
         break;
-      case 1:
+      case 2:
         res = "Important";
         break;
-      case 2:
+      case 3:
         res = "Delegable";
         break;
-      case 3:
+      case 4:
         res = "Optionnel";
         break;
 
@@ -89,6 +110,7 @@ function TaskList() {
             <th>Catégorie</th>
             <th>Expiration</th>
             <th>Statut</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -107,6 +129,9 @@ function TaskList() {
                   checked={e.done}
                   onChange={handleClickDone}
                 />
+              </td>
+              <td>
+                <button onClick={() => handleClickDelete(e.id)}>🗑</button>
               </td>
             </tr>
           ))}
