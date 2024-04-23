@@ -18,8 +18,8 @@ function TaskList() {
     getTasks();
   }, [user]);
 
-  const handleClickDone = () => {
-    console.log("TODO DONE/UNDONE");
+  const handleClickStatus = (task: Task) => {
+    updateTask(task);
   };
 
   const handleClickCreate = () => {
@@ -78,6 +78,32 @@ function TaskList() {
     }
   };
 
+  const updateTask = async (task: Task) => {
+    const isConfirmed = confirm("Voulez-vous changer le statut cette tâche ?");
+    if (user && isConfirmed) {
+      // dispatch update start
+      try {
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${user.token}`,
+        };
+
+        const response = await axios.put(
+          `${URL.TASKS}/${task.id}`,
+          { ...task, done: !task.done },
+          {
+            headers: headers,
+          }
+        );
+        console.log(response);
+        // dispatch update success si status 200
+      } catch (error) {
+        // dispatch update failure
+        console.error(error);
+      }
+    }
+  };
+
   const priorityFromNum = (num: number): string => {
     let res = "";
 
@@ -121,34 +147,37 @@ function TaskList() {
           </tr>
         </thead>
         <tbody>
-          {tasks.map((e: Task, index: number) =>
-            editTaskId === e.id ? (
-              <tr key={e.id}>
+          {tasks.map((task: Task, index: number) =>
+            editTaskId === task.id ? (
+              <tr key={task.id}>
                 <td colSpan={7}>
-                  <TaskForm data={e} onComplete={() => handleClickModify(-1)} />
+                  <TaskForm
+                    data={task}
+                    onComplete={() => handleClickModify(-1)}
+                  />
                 </td>
               </tr>
             ) : (
               <tr key={index}>
                 <td>
-                  <h3>{e.title}</h3>
+                  <h3>{task.title}</h3>
                 </td>
                 <td>
-                  <p>{e.content}</p>
+                  <p>{task.content}</p>
                 </td>
-                <td>{priorityFromNum(e.priority)}</td>
-                <td>{e.category.name}</td>
-                <td>{new Date(e.expiration).toLocaleDateString()}</td>
+                <td>{priorityFromNum(task.priority)}</td>
+                <td>{task.category.name}</td>
+                <td>{new Date(task.expiration).toLocaleDateString()}</td>
                 <td>
                   <input
                     type="checkbox"
-                    checked={e.done}
-                    onChange={handleClickDone}
+                    checked={task.done}
+                    onChange={() => handleClickStatus(task)}
                   />
                 </td>
                 <td>
-                  <button onClick={() => handleClickModify(e.id)}>✎</button>
-                  <button onClick={() => handleClickDelete(e.id)}>🗑</button>
+                  <button onClick={() => handleClickModify(task.id)}>✎</button>
+                  <button onClick={() => handleClickDelete(task.id)}>🗑</button>
                 </td>
               </tr>
             )
