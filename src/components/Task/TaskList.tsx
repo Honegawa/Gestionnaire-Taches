@@ -176,8 +176,14 @@ function TaskList() {
                   />
                 </td>
                 <td>
-                  <button onClick={() => handleClickModify(task.id)}>✎</button>
-                  <button onClick={() => handleClickDelete(task.id)}>🗑</button>
+                  <div className="actions">
+                    <button onClick={() => handleClickModify(task.id)}>
+                      ✎
+                    </button>
+                    <button onClick={() => handleClickDelete(task.id)}>
+                      🗑
+                    </button>
+                  </div>
                 </td>
               </tr>
             )
