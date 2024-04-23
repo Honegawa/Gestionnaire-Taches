@@ -1,3 +1,4 @@
+import "./TaskList.css";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { URL } from "../../utils/constants/url";
@@ -10,6 +11,7 @@ function TaskList() {
   // Solution temporaire. Utiliser le store de redux
   const [tasks, setTasks] = useState([]);
   const [canCreate, setCanCreate] = useState(false);
+  const [editTaskId, setEditTaskId] = useState(-1);
   const { user } = useContext(AuthContext) as UserContext;
 
   useEffect(() => {
@@ -28,8 +30,13 @@ function TaskList() {
     setCanCreate(false);
   };
 
+  const handleClickModify = (id: number) => {
+    setEditTaskId(id);
+  };
+
   const handleClickDelete = async (id: number) => {
-    if (user) {
+    const isConfirmed = confirm("Voulez-vous supprimer cette tâche?");
+    if (user && isConfirmed) {
       // dispatch delete start
       try {
         const headers = {
@@ -101,48 +108,60 @@ function TaskList() {
       {!canCreate && (
         <button onClick={handleClickCreate}>Ajouter une nouvelle tâche</button>
       )}
-      <table>
+      <table className="taskList">
         <thead>
           <tr>
-            <th>Titre</th>
-            <th>Contenu</th>
-            <th>Priorité</th>
-            <th>Catégorie</th>
-            <th>Expiration</th>
-            <th>Statut</th>
-            <th>Actions</th>
+            <th className="td-20">Titre</th>
+            <th className="td-30">Contenu</th>
+            <th className="td-10">Priorité</th>
+            <th className="td-10">Catégorie</th>
+            <th className="td-10">Expiration</th>
+            <th className="td-10">Statut</th>
+            <th className="td-10">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {tasks.map((e: Task, index: number) => (
-            <tr key={index}>
-              <td>
-                <h3>{e.title}</h3>
-              </td>
-              <td>{e.content}</td>
-              <td>{priorityFromNum(e.priority)}</td>
-              <td>{e.category.name}</td>
-              <td>{new Date(e.expiration).toLocaleDateString()}</td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={e.done}
-                  onChange={handleClickDone}
-                />
-              </td>
-              <td>
-                <button onClick={() => handleClickDelete(e.id)}>🗑</button>
+          {tasks.map((e: Task, index: number) =>
+            editTaskId === e.id ? (
+              <tr key={e.id}>
+                <td colSpan={7}>
+                  <TaskForm data={e} onComplete={() => handleClickModify(-1)} />
+                </td>
+              </tr>
+            ) : (
+              <tr key={index}>
+                <td>
+                  <h3>{e.title}</h3>
+                </td>
+                <td>
+                  <p>{e.content}</p>
+                </td>
+                <td>{priorityFromNum(e.priority)}</td>
+                <td>{e.category.name}</td>
+                <td>{new Date(e.expiration).toLocaleDateString()}</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={e.done}
+                    onChange={handleClickDone}
+                  />
+                </td>
+                <td>
+                  <button onClick={() => handleClickModify(e.id)}>✎</button>
+                  <button onClick={() => handleClickDelete(e.id)}>🗑</button>
+                </td>
+              </tr>
+            )
+          )}
+          {canCreate && (
+            <tr>
+              <td colSpan={7}>
+                <TaskForm onComplete={handleHideCreate} />
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
-
-      {canCreate && (
-        <div id="create">
-          <TaskForm onComplete={handleHideCreate} />
-        </div>
-      )}
     </>
   );
 }

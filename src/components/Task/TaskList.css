@@ -1,0 +1,24 @@
+.taskList {
+  width: 100%;
+  border-spacing: 5px;
+
+  td {
+    text-align: center;
+
+    p {
+        white-space: pre-line;
+    }
+  }
+
+  .td-10 {
+    width: 10%;
+  }
+
+  .td-20 {
+    width: 20%;
+  }
+
+  .td-30 {
+    width: 30%;
+  }
+}
