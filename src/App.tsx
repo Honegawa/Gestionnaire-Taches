@@ -1,17 +1,18 @@
-import {Routes, Route} from 'react-router-dom'
-import Template from './components/Template/Template.jsx'
-import PageSignUp from './pages/PageSignUp.tsx'
-import PageDashboard from './pages/PageDashboard/PageDashboard.js';
+import {Routes, Route} from 'react-router-dom';
+import PageSignUp from './pages/PageSignUp.tsx';
+import Template from './components/Template/Template.tsx';
+import PageHome from './pages/PageHome.tsx';
+import PageDashboard from './pages/PageDashboard.tsx';
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Template/>}>
-      <Route path='/sign-up' element={<PageSignUp />} />
-        {/* <Route path='/home' element={<PageHome />} /> */}
-      <Route path='/dashboard' element={<PageDashboard />} />
+      <Route path='/' element={<Template/>}>
+        <Route index element={<PageHome />} />
+        <Route path='/sign-up' element={<PageSignUp />} />
+        <Route path='/dashboard' element={<PageDashboard />} />
       </Route>
-  </Routes>
+    </Routes>
   )
 }
 

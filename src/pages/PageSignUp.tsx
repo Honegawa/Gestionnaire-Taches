@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import {URL} from '../utils/constants/url.ts';
-import {User} from '../interfaces/user.ts'; 
+import {User} from '../interfaces/user.ts';
 
 function PageSignUp() {
 
@@ -12,7 +12,8 @@ function PageSignUp() {
         }
     )
 
-    const handleChange = (event:React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => { // Si plusieurs type mettre un |
+    const handleChange = (event:React.ChangeEvent<HTMLInputElement>) => { // Si plusieurs type mettre un |
+
         const { name, value } = event.target;
         setUser( (user: User) => ( { ...user, [name]: value } ) );
     };
