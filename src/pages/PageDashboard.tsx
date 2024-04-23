@@ -1,12 +1,14 @@
 import AddCategory from "../components/AddCategory/AddCategory";
+import TaskList from "../components/Task/TaskList";
 
 function PageDashboard() {
+
   return (
     <>
-      <h1>Ceci est la PageDashboard.</h1>
       <AddCategory />
+      <TaskList />
     </>
-  )
+  );
 }
 
-export default PageDashboard
+export default PageDashboard;
