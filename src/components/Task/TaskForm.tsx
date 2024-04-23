@@ -12,8 +12,14 @@ import { AuthContext } from "../../utils/context/AuthContext";
 import { UserContext } from "../../interfaces/user";
 import * as ACTIONS_CAT from "../../redux/reducers/category";
 
-function TaskForm() {
-  const [task, setTask] = useState({});
+function TaskForm({
+  data,
+  onComplete,
+}: {
+  data?: Task;
+  onComplete: () => void;
+}) {
+  const [task, setTask] = useState(data ?? {});
   const { user } = useContext(AuthContext) as UserContext;
   const dispatch = useDispatch();
 
@@ -58,11 +64,12 @@ function TaskForm() {
 
         const response = await axios.post(
           URL.TASKS,
-          { ...task, done: false },
+          { ...task, done: data?.done ?? false },
           { headers: headers }
         );
         console.log(response);
         // dispatch post succes si status 201
+        onComplete();
       } catch (error) {
         // dispatch post failure
         console.error(error);
@@ -89,65 +96,58 @@ function TaskForm() {
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="rowForm">
-          <fieldset>
-            <legend>Titre</legend>
+        <div className="flexRowForm">
+          <div className="flexRowTop">
             <input
               type="text"
               name="title"
+              placeholder="Titre"
               onChange={handleChangeInput}
               required
             />
-          </fieldset>
-          <fieldset>
-            <legend>Contenu</legend>
             <textarea
               name="content"
+              placeholder="Contenu"
               onChange={handleChangeInput}
               rows={3}
               required
             />
-          </fieldset>
-          <fieldset>
-            <legend>Priorité</legend>
             <select
               name="priority"
               defaultValue=""
               onChange={handleChangeInput}
               required
             >
-              <option value="" hidden></option>
+              <option value="" hidden>
+                Choisir Priorité
+              </option>
               <option value={PRIORITY.URGENT}>Urgent</option>
               <option value={PRIORITY.IMPORTANT}>Important</option>
               <option value={PRIORITY.DELEGABLE}>Délégable</option>
               <option value={PRIORITY.OPTIONAL}>Optionnel</option>
             </select>
-          </fieldset>
-          <fieldset>
-            <legend>Catégorie</legend>
             <select
               name="category"
               defaultValue=""
               onChange={handleChangeInput}
               required
             >
-              <option value="" hidden></option>
+              <option value="" hidden>
+                Choisir Catégorie
+              </option>
               {store.map((e: Category) => (
                 <option key={e.id} value={e.id}>
                   {e.name}
                 </option>
               ))}
             </select>
-          </fieldset>
-          <fieldset>
-            <legend>Expiration</legend>
             <input
               type="date"
               name="expiration"
               onChange={handleChangeInput}
               required
             />
-          </fieldset>
+          </div>
           <button>Enregistrer</button>
         </div>
       </form>

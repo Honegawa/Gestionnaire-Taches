@@ -9,6 +9,7 @@ import { UserContext } from "../../interfaces/user";
 function TaskList() {
   // Solution temporaire. Utiliser le store de redux
   const [tasks, setTasks] = useState([]);
+  const [canCreate, setCanCreate] = useState(false);
   const { user } = useContext(AuthContext) as UserContext;
 
   useEffect(() => {
@@ -17,6 +18,14 @@ function TaskList() {
 
   const handleClickDone = () => {
     console.log("TODO DONE/UNDONE");
+  };
+
+  const handleClickCreate = () => {
+    setCanCreate(true);
+  };
+
+  const handleHideCreate = () => {
+    setCanCreate(false);
   };
 
   const getTasks = async () => {
@@ -68,7 +77,20 @@ function TaskList() {
   return (
     <>
       <h2>Vos tâches</h2>
+      {!canCreate && (
+        <button onClick={handleClickCreate}>Ajouter une nouvelle tâche</button>
+      )}
       <table>
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Contenu</th>
+            <th>Priorité</th>
+            <th>Catégorie</th>
+            <th>Expiration</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
         <tbody>
           {tasks.map((e: Task, index: number) => (
             <tr key={index}>
@@ -88,13 +110,14 @@ function TaskList() {
               </td>
             </tr>
           ))}
-          <tr>
-            <td colSpan={6}>
-              <TaskForm />
-            </td>
-          </tr>
         </tbody>
       </table>
+
+      {canCreate && (
+        <div id="create">
+          <TaskForm onComplete={handleHideCreate} />
+        </div>
+      )}
     </>
   );
 }

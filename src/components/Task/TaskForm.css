@@ -1,18 +1,16 @@
-.rowForm {
-    height: max-content;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 5px;
+.flexRowForm {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 
-    button {
-        height: fit-content;
-    }
+.flexRowTop {
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
 
-    fieldset {
-        textarea {
-            width: 400px;
-            resize: none;
-        }
-    }
+  textarea {
+    width: 400px;
+    resize: none;
+  }
 }
