@@ -1,39 +1,10 @@
 .header {
-    max-width: 1240px;
     width: 100%;
-    margin: 50px auto;
+    padding: 20px 50px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    &__links {
-        display: flex;
-        gap: 50px;
-
-        a {
-            color: #e0a123;
-            font-family: Montserrat;
-            font-size: 24px;
-            text-decoration: none;
-
-            &:hover,
-            &.active {
-                text-decoration: underline;
-            }
-        }
-    }
-
-    @media screen and (max-width: 700px) {
-        // flex-direction: column;
-        padding: 0 20px;
-        gap: 20px;
-        box-sizing: border-box;
-
-        &__links {
-            a {
-                font-size: 12px;
-                text-transform: uppercase;
-            }
-        }
-    }
+    background-color: rgb(65, 63, 63);
+    color: white;
+    box-sizing: border-box;
 }

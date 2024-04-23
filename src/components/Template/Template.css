@@ -1,0 +1,14 @@
+.layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 2;
+    gap: 10px;
+    margin: 30px 100px;
+  }
+}
