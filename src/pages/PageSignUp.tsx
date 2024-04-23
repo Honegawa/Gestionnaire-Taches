@@ -13,6 +13,7 @@ function PageSignUp() {
     )
 
     const handleChange = (event:React.ChangeEvent<HTMLInputElement>) => { // Si plusieurs type mettre un |
+
         const { name, value } = event.target;
         setUser( (user: User) => ( { ...user, [name]: value } ) );
     };

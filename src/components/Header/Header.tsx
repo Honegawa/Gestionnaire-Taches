@@ -31,7 +31,6 @@ const Header = () => {
                         </>
                     )
                 }
-                
             </nav>
         </header>
     );

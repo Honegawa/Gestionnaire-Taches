@@ -12,7 +12,7 @@ function App() {
         <Route path='/sign-up' element={<PageSignUp />} />
         <Route path='/dashboard' element={<PageDashboard />} />
       </Route>
-  </Routes>
+    </Routes>
   )
 }
 
