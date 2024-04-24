@@ -19,3 +19,9 @@ export interface TaskFormData {
   done?: boolean;
   expiration?: string;
 }
+
+export type RootState = {
+  tasks: {
+    data: Task[]
+  }
+}
