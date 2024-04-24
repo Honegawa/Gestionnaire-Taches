@@ -19,7 +19,7 @@ function TaskList() {
   }, [user]);
 
   const handleClickStatus = (task: Task) => {
-    updateTask(task);
+    updateStatusTask(task);
   };
 
   const handleClickCreate = () => {
@@ -78,7 +78,7 @@ function TaskList() {
     }
   };
 
-  const updateTask = async (task: Task) => {
+  const updateStatusTask = async (task: Task) => {
     const isConfirmed = confirm("Voulez-vous changer le statut cette tâche ?");
     if (user && isConfirmed) {
       // dispatch update start
