@@ -32,8 +32,17 @@ export type DeletedTask = {
   id: number;
 }
 
+export type TaskFilters = {
+  title: string;
+  content: string;
+  priority: number;
+  category: string;
+  done: string;
+}
+
 export type RootState = {
   tasks: {
     data: Task[];
+    filters: TaskFilters;
   };
 };

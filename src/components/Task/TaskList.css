@@ -6,7 +6,7 @@
     text-align: center;
 
     p {
-        white-space: pre-line;
+      white-space: pre-line;
     }
 
     .actions {
@@ -26,5 +26,25 @@
 
   .td-30 {
     width: 30%;
+  }
+}
+
+.filter {
+  width: 100%;
+
+  .flexRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .flexCol {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    input {
+      height: 100%;
+    }
   }
 }

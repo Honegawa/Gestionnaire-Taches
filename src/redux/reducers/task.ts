@@ -1,16 +1,29 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { DeletedTask, Task, UpdatedTask } from "../../interfaces/task";
+import {
+  DeletedTask,
+  Task,
+  TaskFilters,
+  UpdatedTask,
+} from "../../interfaces/task";
 
 type initialTask = {
   data: Task[];
   loading: boolean | null;
   error: boolean;
+  filters: TaskFilters;
 };
 
 const initialState: initialTask = {
   data: [],
   loading: null,
   error: false,
+  filters: {
+    title: "",
+    content: "",
+    priority: 0,
+    category: "",
+    done: "all",
+  },
 };
 
 export const Tasks = createSlice({
@@ -83,6 +96,9 @@ export const Tasks = createSlice({
       store.loading = false;
       store.error = true;
     },
+    FILTERS_UPDATE: (store: initialTask, actions: PayloadAction<TaskFilters>) => {
+      store.filters = actions.payload
+    }
   },
 });
 
@@ -99,6 +115,7 @@ export const {
   DELETE_START,
   DELETE_SUCCESS,
   DELETE_FAILURE,
+  FILTERS_UPDATE
 } = Tasks.actions;
 
 export default Tasks.reducer;
