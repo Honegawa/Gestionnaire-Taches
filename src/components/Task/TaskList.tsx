@@ -2,17 +2,23 @@ import "./TaskList.css";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { URL } from "../../utils/constants/url";
-import { Task } from "../../interfaces/task";
+import { Task, RootState } from "../../interfaces/task";
 import TaskForm from "./TaskForm";
 import { AuthContext } from "../../utils/context/AuthContext";
 import { UserContext } from "../../interfaces/user";
+import { useDispatch, useSelector } from "react-redux";
+import { allTasks } from "../../service/selector/task.selector";
+
+import * as ACTIONS from "../../redux/reducers/task";
 
 function TaskList() {
-  // Solution temporaire. Utiliser le store de redux
-  const [tasks, setTasks] = useState([]);
   const [canCreate, setCanCreate] = useState(false);
   const [editTaskId, setEditTaskId] = useState(-1);
   const { user } = useContext(AuthContext) as UserContext;
+
+  const dispatch = useDispatch();
+
+  const store: Task[] = useSelector((state: RootState) => allTasks(state))
 
   useEffect(() => {
     getTasks();
@@ -57,10 +63,10 @@ function TaskList() {
   };
 
   const getTasks = async () => {
-    // dispatch start
+
     if (user) {
+       dispatch(ACTIONS.FETCH_START());
       try {
-        // dispatch success
         const headers = {
           Authorization: `Basic ${user.token}`,
         };
@@ -70,10 +76,10 @@ function TaskList() {
         console.log(response);
         const { data, status } = response;
         if (status === 200) {
-          setTasks(data);
+          dispatch(ACTIONS.FETCH_SUCCESS(data));
         }
       } catch (error) {
-        //dispatch failure
+        dispatch(ACTIONS.FETCH_FAILURE());
       }
     }
   };
@@ -147,7 +153,7 @@ function TaskList() {
           </tr>
         </thead>
         <tbody>
-          {tasks.map((task: Task, index: number) =>
+          {store.map((task: Task, index: number) =>
             editTaskId === task.id ? (
               <tr key={task.id}>
                 <td colSpan={7}>
