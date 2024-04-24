@@ -19,7 +19,7 @@ function TaskForm({
   data?: Task;
   onComplete: () => void;
 }) {
-  const [task, setTask] = useState<TaskFormData>(data ?? {});
+  const [task, setTask] = useState<TaskFormData>(data ?? { done: false });
   const { user } = useContext(AuthContext) as UserContext;
   const dispatch = useDispatch();
 
