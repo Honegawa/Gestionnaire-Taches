@@ -2,14 +2,26 @@ import "./TaskList.css";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { URL } from "../../utils/constants/url";
-import { Task, RootState } from "../../interfaces/task";
+import {
+  DeletedTask,
+  RootState as RootStateTask,
+  Task,
+  UpdatedTask,
+} from "../../interfaces/task";
 import TaskForm from "./TaskForm";
 import { AuthContext } from "../../utils/context/AuthContext";
 import { UserContext } from "../../interfaces/user";
 import { useDispatch, useSelector } from "react-redux";
 import { allTasks } from "../../service/selector/task.selector";
-
-import * as ACTIONS from "../../redux/reducers/task";
+import * as ACTIONS_CAT from "../../redux/reducers/category";
+import * as ACTIONS_TASK from "../../redux/reducers/task";
+import { getCategoryNameFromId } from "../../utils/helpers/category.helper";
+import {
+  Category,
+  RootState as RootStateCategory,
+} from "../../interfaces/category";
+import { allCategories } from "../../service/selector/category.selector";
+import { priorityFromNum } from "../../utils/helpers/task.helper";
 
 function TaskList() {
   const [canCreate, setCanCreate] = useState(false);
@@ -17,11 +29,16 @@ function TaskList() {
   const { user } = useContext(AuthContext) as UserContext;
 
   const dispatch = useDispatch();
-
-  const store: Task[] = useSelector((state: RootState) => allTasks(state))
+  const storeTask: Task[] = useSelector((state: RootStateTask) =>
+    allTasks(state)
+  );
+  const storeCategories: Category[] = useSelector((state: RootStateCategory) =>
+    allCategories(state)
+  );
 
   useEffect(() => {
     getTasks();
+    fetchCategories();
   }, [user]);
 
   const handleClickStatus = (task: Task) => {
@@ -43,7 +60,7 @@ function TaskList() {
   const handleClickDelete = async (id: number) => {
     const isConfirmed = confirm("Voulez-vous supprimer cette tâche?");
     if (user && isConfirmed) {
-      // dispatch delete start
+      dispatch(ACTIONS_TASK.DELETE_START());
       try {
         const headers = {
           "Content-Type": "application/json",
@@ -54,18 +71,26 @@ function TaskList() {
           headers: headers,
         });
         console.log(response);
-        // dispatch delete success si status 204
+        const { status } = response;
+
+        if (status === 204) {
+          const deletedTask: DeletedTask = {
+            data: storeTask,
+            id: id,
+          };
+
+          dispatch(ACTIONS_TASK.DELETE_SUCCESS(deletedTask));
+        }
       } catch (error) {
-        // dispatch delete failure
+        dispatch(ACTIONS_TASK.DELETE_FAILURE());
         console.error(error);
       }
     }
   };
 
   const getTasks = async () => {
-
     if (user) {
-       dispatch(ACTIONS.FETCH_START());
+      dispatch(ACTIONS_TASK.FETCH_START());
       try {
         const headers = {
           Authorization: `Basic ${user.token}`,
@@ -76,10 +101,10 @@ function TaskList() {
         console.log(response);
         const { data, status } = response;
         if (status === 200) {
-          dispatch(ACTIONS.FETCH_SUCCESS(data));
+          dispatch(ACTIONS_TASK.FETCH_SUCCESS(data));
         }
       } catch (error) {
-        dispatch(ACTIONS.FETCH_FAILURE());
+        dispatch(ACTIONS_TASK.FETCH_FAILURE());
       }
     }
   };
@@ -87,7 +112,7 @@ function TaskList() {
   const updateStatusTask = async (task: Task) => {
     const isConfirmed = confirm("Voulez-vous changer le statut cette tâche ?");
     if (user && isConfirmed) {
-      // dispatch update start
+      dispatch(ACTIONS_TASK.UPDATE_START());
       try {
         const headers = {
           "Content-Type": "application/json",
@@ -102,36 +127,47 @@ function TaskList() {
           }
         );
         console.log(response);
-        // dispatch update success si status 200
+        const { data, status } = response;
+
+        if (status === 200) {
+          const newTask = {
+            ...data,
+            category: {
+              id: task.categoryId,
+              name: getCategoryNameFromId(task.categoryId, storeCategories),
+            },
+          };
+
+          const updatedTask: UpdatedTask = {
+            data: storeTask,
+            update: newTask,
+          };
+
+          dispatch(ACTIONS_TASK.UPDATE_SUCCESS(updatedTask));
+        }
+
+        dispatch(ACTIONS_TASK.UPDATE_START());
       } catch (error) {
-        // dispatch update failure
+        dispatch(ACTIONS_TASK.UPDATE_FAILURE());
         console.error(error);
       }
     }
   };
 
-  const priorityFromNum = (num: number): string => {
-    let res = "";
+  const fetchCategories = async () => {
+    dispatch(ACTIONS_CAT.FETCH_START());
+    try {
+      const response = await axios.get(URL.CATEGORIES);
 
-    switch (num) {
-      case 1:
-        res = "Urgent";
-        break;
-      case 2:
-        res = "Important";
-        break;
-      case 3:
-        res = "Delegable";
-        break;
-      case 4:
-        res = "Optionnel";
-        break;
-
-      default:
-        break;
+      console.log(response);
+      const { data, status } = response;
+      if (status === 200) {
+        dispatch(ACTIONS_CAT.FETCH_SUCCESS(data));
+      }
+    } catch (error) {
+      dispatch(ACTIONS_CAT.FETCH_FAILURE());
+      console.error(error);
     }
-
-    return res;
   };
 
   return (
@@ -153,13 +189,15 @@ function TaskList() {
           </tr>
         </thead>
         <tbody>
-          {store.map((task: Task, index: number) =>
+          {storeTask.map((task: Task, index: number) =>
             editTaskId === task.id ? (
               <tr key={task.id}>
                 <td colSpan={7}>
                   <TaskForm
                     data={task}
                     onComplete={() => handleClickModify(-1)}
+                    tasks={storeTask}
+                    categories={storeCategories}
                   />
                 </td>
               </tr>
@@ -197,7 +235,10 @@ function TaskList() {
           {canCreate && (
             <tr>
               <td colSpan={7}>
-                <TaskForm onComplete={handleHideCreate} />
+                <TaskForm
+                  onComplete={handleHideCreate}
+                  categories={storeCategories}
+                />
               </td>
             </tr>
           )}

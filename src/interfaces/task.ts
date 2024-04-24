@@ -8,6 +8,7 @@ export interface Task {
   category: Category;
   done: boolean;
   expiration: string;
+  categoryId: number;
 }
 
 export interface TaskFormData {
@@ -18,10 +19,21 @@ export interface TaskFormData {
   category?: Category;
   done?: boolean;
   expiration?: string;
+  categoryId?: number;
+}
+
+export type UpdatedTask = {
+  data: Task[];
+  update: Task;
+};
+
+export type DeletedTask = {
+  data: Task[];
+  id: number;
 }
 
 export type RootState = {
   tasks: {
-    data: Task[]
-  }
-}
+    data: Task[];
+  };
+};
