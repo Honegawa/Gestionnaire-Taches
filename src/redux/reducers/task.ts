@@ -66,7 +66,6 @@ export const Tasks = createSlice({
 
       tasks.map((task: Task) => {
         if (task.id === newTask.id) {
-          console.log(newTask.category);
           newTasks.push(newTask);
         } else {
           newTasks.push(task);
@@ -96,9 +95,21 @@ export const Tasks = createSlice({
       store.loading = false;
       store.error = true;
     },
-    FILTERS_UPDATE: (store: initialTask, actions: PayloadAction<TaskFilters>) => {
-      store.filters = actions.payload
-    }
+    FILTERS_UPDATE: (
+      store: initialTask,
+      actions: PayloadAction<TaskFilters>
+    ) => {
+      store.filters = actions.payload;
+    },
+    FILTERS_RESET: (store: initialTask) => {
+      store.filters = {
+        title: "",
+        content: "",
+        priority: 0,
+        category: "",
+        done: "all",
+      };
+    },
   },
 });
 
@@ -115,7 +126,8 @@ export const {
   DELETE_START,
   DELETE_SUCCESS,
   DELETE_FAILURE,
-  FILTERS_UPDATE
+  FILTERS_UPDATE,
+  FILTERS_RESET,
 } = Tasks.actions;
 
 export default Tasks.reducer;

@@ -13,7 +13,7 @@ import TaskForm from "./TaskForm";
 import { AuthContext } from "../../utils/context/AuthContext";
 import { UserContext } from "../../interfaces/user";
 import { useDispatch, useSelector } from "react-redux";
-import { filteredTasks } from "../../service/selector/task.selector";
+import { allTasks, filteredTasks } from "../../service/selector/task.selector";
 import * as ACTIONS_CAT from "../../redux/reducers/category";
 import * as ACTIONS_TASK from "../../redux/reducers/task";
 import { getCategoryNameFromId } from "../../utils/helpers/category.helper";
@@ -38,13 +38,16 @@ function TaskList() {
   const { user } = useContext(AuthContext) as UserContext;
 
   const dispatch = useDispatch();
-  const storeTask: Task[] = useSelector((state: RootStateTask) =>
-    filteredTasks(state)
-  );
   const storeCategories: Category[] = useSelector((state: RootStateCategory) =>
     allCategories(state)
   );
-
+  const storeFilteredTask: Task[] = useSelector((state: RootStateTask) =>
+    filteredTasks(state)
+  );
+  const storeTask: Task[] = useSelector((state: RootStateTask) =>
+    allTasks(state)
+  );
+  
   useEffect(() => {
     getTasks();
     fetchCategories();
@@ -126,7 +129,7 @@ function TaskList() {
       done: "all",
     };
     setFilters(initialState);
-    dispatch(ACTIONS_TASK.FILTERS_UPDATE(initialState));
+    dispatch(ACTIONS_TASK.FILTERS_RESET());
   };
 
   const getTasks = async () => {
@@ -219,7 +222,7 @@ function TaskList() {
           : filters.done === "false"
           ? "en cours"
           : ""
-      } (${storeTask.length})`}</h2>
+      } (${storeFilteredTask.length})`}</h2>
       {!canCreate && (
         <button onClick={handleClickCreate}>Ajouter une nouvelle tâche</button>
       )}
@@ -325,7 +328,7 @@ function TaskList() {
           </tr>
         </thead>
         <tbody>
-          {storeTask.map((task: Task, index: number) =>
+          {storeFilteredTask.map((task: Task, index: number) =>
             editTaskId === task.id ? (
               <tr key={task.id}>
                 <td colSpan={7}>
