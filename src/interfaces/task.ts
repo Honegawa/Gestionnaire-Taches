@@ -30,7 +30,7 @@ export type UpdatedTask = {
 export type DeletedTask = {
   data: Task[];
   id: number;
-}
+};
 
 export type TaskFilters = {
   title: string;
@@ -38,7 +38,7 @@ export type TaskFilters = {
   priority: number;
   category: string;
   done: string;
-}
+};
 
 export type RootState = {
   tasks: {
