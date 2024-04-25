@@ -17,16 +17,13 @@ const Header = () => {
 
   return (
     <header className="header">
-      <nav className="header__links">
-        {user ? (
-          <>
-            Bienvenue !
-            <button onClick={handleDisconnect}>Se Deconnecter</button>
-          </>
-        ) : (
-          <>Vous n'êtes pas connecté !</>
-        )}
-      </nav>
+      {user ? (
+        <>
+          Bienvenue sur votre gestionnaire de tâches !<button onClick={handleDisconnect}>Se Deconnecter</button>
+        </>
+      ) : (
+        <>Vous n'êtes pas connecté !</>
+      )}
     </header>
   );
 };

@@ -3,26 +3,36 @@ import React, { useContext, useEffect, useState } from "react";
 import { PRIORITY } from "../../utils/constants/priority";
 import axios from "axios";
 import { URL } from "../../utils/constants/url";
-import { Task } from "../../interfaces/task";
-import { Category, RootState } from "../../interfaces/category";
-import { useDispatch, useSelector } from "react-redux";
-import { allCategories } from "../../service/selector/category.selector";
+import { Task, TaskFormData, UpdatedTask } from "../../interfaces/task";
+import { Category } from "../../interfaces/category";
+import { useDispatch } from "react-redux";
 
 import { AuthContext } from "../../utils/context/AuthContext";
 import { UserContext } from "../../interfaces/user";
-import * as ACTIONS_CAT from "../../redux/reducers/category";
+import * as ACTIONS from "../../redux/reducers/task";
+import { getCategoryNameFromId } from "../../utils/helpers/category.helper";
 
-function TaskForm() {
-  const [task, setTask] = useState({});
+/**
+ *  TaskForm est utilisé pour la création et la mise à jour d'une Task
+ *  S'il y a une propriété @param data et @param tasks alors il s'agit d'une mise à jour
+ *  Sinon il s'agit de la création
+ */
+function TaskForm({
+  data,
+  tasks,
+  categories,
+  onComplete,
+}: {
+  data?: Task;
+  tasks?: Task[];
+  categories: Category[];
+  onComplete: () => void;
+}) {
+  const [task, setTask] = useState<TaskFormData>(data ?? { done: false });
   const { user } = useContext(AuthContext) as UserContext;
   const dispatch = useDispatch();
 
-  const store: Category[] = useSelector((state: RootState) =>
-    allCategories(state)
-  );
-
   useEffect(() => {
-    fetchCategories();
   }, []);
 
   const handleChangeInput = (
@@ -33,122 +43,190 @@ function TaskForm() {
     const { name, value, type } = event.target;
 
     if (type === "date") {
-      setTask((newTask: Task) => ({
+      setTask((newTask: TaskFormData) => ({
         ...newTask,
         [name]: new Date(value).toISOString(),
       }));
     } else {
-      setTask((newTask: Task) => ({ ...newTask, [name]: value }));
+      setTask((newTask: TaskFormData) => ({ ...newTask, [name]: value }));
     }
+  };
+
+  const handleChangeChecked = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = event.target;
+    setTask((newTask: TaskFormData) => ({ ...newTask, [name]: checked }));
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    postTask();
+
+    if (data) {
+      // update
+      updateTask(task);
+    } else {
+      // create
+      postTask();
+    }
   };
 
   const postTask = async () => {
     if (user) {
-      // dispatch post start
+      dispatch(ACTIONS.POST_START());
       try {
         const headers = {
           "Content-Type": "application/json",
           Authorization: `Basic ${user.token}`,
         };
 
-        const response = await axios.post(
-          URL.TASKS,
-          { ...task, done: false },
-          { headers: headers }
-        );
+        // on utilise task.category : number pour la création d'une tâche
+        const response = await axios.post(URL.TASKS, task, {
+          headers: headers,
+        });
         console.log(response);
-        // dispatch post succes si status 201
+        const { data, status } = response;
+
+        if (status === 201) {
+          // task.category est un number lorsqu'on utilise le formulaire
+          const catId = task.category;
+
+          if (catId) {
+            const newTask = {
+              ...data,
+              category: {
+                id: catId,
+                name: getCategoryNameFromId(Number(catId), categories),
+              },
+            };
+            dispatch(ACTIONS.POST_SUCCESS(newTask));
+            onComplete();
+          }
+        }
       } catch (error) {
-        // dispatch post failure
+        dispatch(ACTIONS.POST_FAILURE());
         console.error(error);
       }
     }
   };
 
-  const fetchCategories = async () => {
-    dispatch(ACTIONS_CAT.FETCH_START());
-    try {
-      const response = await axios.get(URL.CATEGORIES);
+  const updateTask = async (task: Task | TaskFormData) => {
+    const isConfirmed = confirm("Voulez-vous modifier cette tâche?");
+    if (user && isConfirmed) {
+      dispatch(ACTIONS.UPDATE_START());
+      try {
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${user.token}`,
+        };
 
-      console.log(response);
-      const { data, status } = response;
-      if (status === 200) {
-        dispatch(ACTIONS_CAT.FETCH_SUCCESS(data));
+        // on utilise task.categoryId : number pour la mise à jour d'une tâche
+        const response = await axios.put(
+          `${URL.TASKS}/${task.id}`,
+          { ...task, categoryId: task.category },
+          {
+            headers: headers,
+          }
+        );
+        console.log(response);
+        const { data, status } = response;
+
+        if (status === 200) {
+          // task.category est un number lorsqu'on utilise le formulaire
+          const catId = task.category;
+
+          if (catId && tasks) {
+            const newTask = {
+              ...data,
+              category: {
+                id: catId,
+                name: getCategoryNameFromId(Number(catId), categories),
+              },
+            };
+
+            const updatedTask: UpdatedTask = {
+              data: tasks,
+              update: newTask,
+            };
+
+            dispatch(ACTIONS.UPDATE_SUCCESS(updatedTask));
+            onComplete();
+          }
+        }
+      } catch (error) {
+        dispatch(ACTIONS.UPDATE_FAILURE());
+        console.error(error);
       }
-    } catch (error) {
-      dispatch(ACTIONS_CAT.FETCH_FAILURE());
-      console.error(error);
     }
   };
 
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="rowForm">
-          <fieldset>
-            <legend>Titre</legend>
+        <div className="flexRow">
+          <input
+            type="text"
+            name="title"
+            placeholder="Titre"
+            defaultValue={task?.title ?? ""}
+            onChange={handleChangeInput}
+            required
+          />
+          <textarea
+            name="content"
+            placeholder="Contenu"
+            defaultValue={task?.content ?? ""}
+            onChange={handleChangeInput}
+            rows={3}
+            required
+          />
+          <select
+            name="priority"
+            defaultValue={task?.priority ?? ""}
+            onChange={handleChangeInput}
+            required
+          >
+            <option value="" hidden>
+              Choisir Priorité
+            </option>
+            <option value={PRIORITY.URGENT}>Urgent</option>
+            <option value={PRIORITY.IMPORTANT}>Important</option>
+            <option value={PRIORITY.DELEGABLE}>Délégable</option>
+            <option value={PRIORITY.OPTIONAL}>Optionnel</option>
+          </select>
+          <select
+            name="category"
+            defaultValue={task.categoryId ?? ""}
+            onChange={handleChangeInput}
+            required
+          >
+            <option value="" hidden>
+              Choisir Catégorie
+            </option>
+            {categories.map((e: Category) => (
+              <option key={`${task.title}-${e.id}`} value={e.id}>
+                {e.name}
+              </option>
+            ))}
+          </select>
+          <input
+            type="date"
+            name="expiration"
+            defaultValue={
+              task?.expiration ? task.expiration.substring(0, 10) : ""
+            }
+            onChange={handleChangeInput}
+            required
+          />
+          <div className="span-10">
             <input
-              type="text"
-              name="title"
-              onChange={handleChangeInput}
-              required
+              type="checkbox"
+              name="done"
+              defaultChecked={task.done}
+              onChange={handleChangeChecked}
             />
-          </fieldset>
-          <fieldset>
-            <legend>Contenu</legend>
-            <textarea
-              name="content"
-              onChange={handleChangeInput}
-              rows={3}
-              required
-            />
-          </fieldset>
-          <fieldset>
-            <legend>Priorité</legend>
-            <select
-              name="priority"
-              defaultValue=""
-              onChange={handleChangeInput}
-              required
-            >
-              <option value="" hidden></option>
-              <option value={PRIORITY.URGENT}>Urgent</option>
-              <option value={PRIORITY.IMPORTANT}>Important</option>
-              <option value={PRIORITY.DELEGABLE}>Délégable</option>
-              <option value={PRIORITY.OPTIONAL}>Optionnel</option>
-            </select>
-          </fieldset>
-          <fieldset>
-            <legend>Catégorie</legend>
-            <select
-              name="category"
-              defaultValue=""
-              onChange={handleChangeInput}
-              required
-            >
-              <option value="" hidden></option>
-              {store.map((e: Category) => (
-                <option key={e.id} value={e.id}>
-                  {e.name}
-                </option>
-              ))}
-            </select>
-          </fieldset>
-          <fieldset>
-            <legend>Expiration</legend>
-            <input
-              type="date"
-              name="expiration"
-              onChange={handleChangeInput}
-              required
-            />
-          </fieldset>
-          <button>Enregistrer</button>
+          </div>
+          <div className="span-10">
+            <button>Enregistrer</button>
+          </div>
         </div>
       </form>
     </>

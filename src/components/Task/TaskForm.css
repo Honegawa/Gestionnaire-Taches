@@ -1,18 +1,27 @@
-.rowForm {
-    height: max-content;
+form .flexRow {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+
+  input[type="text"] {
+    width: 20%;
+  }
+  input[type="date"] {
+    width: 10%;
+  }
+  textarea {
+    width: 30%;
+    resize: none;
+  }
+  select {
+    width: 10%;
+  }
+
+  .span-10 {
+    width: 10%;
     display: flex;
-    flex-direction: row;
     align-items: center;
-    gap: 5px;
-
-    button {
-        height: fit-content;
-    }
-
-    fieldset {
-        textarea {
-            width: 400px;
-            resize: none;
-        }
-    }
+    justify-content: center;
+  }
 }
