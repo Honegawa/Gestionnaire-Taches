@@ -48,7 +48,7 @@ function PageSignUp() {
       {
         isCreated?
           (
-            <p>Féliciation, vous êtes bien inscrit !</p>
+            <p>Félicitation, vous êtes bien inscrit !</p>
           )
           :
           (
