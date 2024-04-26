@@ -8,3 +8,7 @@
         flex-direction: column;
     }
 }
+
+#confirmation {
+    display: none;
+}
