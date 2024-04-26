@@ -9,7 +9,6 @@ export const filteredTasks = createSelector(
   (state: RootState) => state.tasks.data,
   (state: RootState) => state.tasks.filters,
   (data, filters) => {
-    console.log("selector", data);
     return data
       .filter((task: Task) =>
         task.title.toLowerCase().includes(filters.title.toLowerCase())
